@@ -45,6 +45,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <wkWebView userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZqN-th-EZo">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <wkWebViewConfiguration key="configuration">
+                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                    <wkPreferences key="preferences"/>
+                                </wkWebViewConfiguration>
+                            </wkWebView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J29-lX-9Hy">
                                 <rect key="frame" x="16" y="816" width="31" height="30"/>
                                 <state key="normal" title="戻る">
@@ -57,15 +65,23 @@
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
+                            <constraint firstItem="ZqN-th-EZo" firstAttribute="centerX" secondItem="8Ty-in-rtA" secondAttribute="centerX" id="5zk-HQ-gHC"/>
                             <constraint firstItem="J29-lX-9Hy" firstAttribute="leading" secondItem="yoo-z7-h1q" secondAttribute="leading" constant="16" id="B6I-aL-9uh"/>
+                            <constraint firstItem="ZqN-th-EZo" firstAttribute="top" secondItem="8Ty-in-rtA" secondAttribute="top" id="Sma-7F-XYL"/>
                             <constraint firstItem="yoo-z7-h1q" firstAttribute="bottom" secondItem="J29-lX-9Hy" secondAttribute="bottom" constant="16" id="Ufe-kO-X67"/>
+                            <constraint firstItem="ZqN-th-EZo" firstAttribute="leading" secondItem="8Ty-in-rtA" secondAttribute="leading" id="XFS-QZ-Uo7"/>
+                            <constraint firstItem="ZqN-th-EZo" firstAttribute="centerY" secondItem="8Ty-in-rtA" secondAttribute="centerY" id="it0-hF-t3D"/>
+                            <constraint firstItem="yoo-z7-h1q" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="J29-lX-9Hy" secondAttribute="trailing" symbolic="YES" id="v46-ky-n7O"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="yoo-z7-h1q"/>
                     </view>
+                    <connections>
+                        <outlet property="webView" destination="ZqN-th-EZo" id="OdP-c2-D4n"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AjL-ew-3XM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1132" y="139"/>
+            <point key="canvasLocation" x="1131.8840579710145" y="138.61607142857142"/>
         </scene>
     </scenes>
 </document>
