@@ -9,14 +9,29 @@
 import Foundation
 
 extension UserDefaults {
+    func logCurrentContent() {
+        guard let bundleID = Bundle.main.bundleIdentifier else {
+            print(dictionaryRepresentation())
+            return
+        }
+
+        let applicationContents = dictionaryRepresentation()
+            .filter { key, _ in
+                key.contains(bundleID)
+            }
+        print(applicationContents)
+    }
+}
+
+extension UserDefaults {
     enum Key: String {
         case onboardingFinishVersion
     }
 
-    var onboardingFinished: Bool {
+    var anyOnboardingFinished: Bool {
         get {
             let list = onboardingFinishList()
-            return list[Onboarding.current.rawValue] != nil
+            return list.isEmpty == false
         }
         set {
             var list = onboardingFinishList()
