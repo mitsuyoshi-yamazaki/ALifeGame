@@ -20,13 +20,38 @@ final class GameScene: SKScene {
         return childNode(withName: "//camera") as? SKCameraNode
     }
 
+    private let cameraDefaultZoomScale: CGFloat = 2.0
+
     override func didMove(to view: SKView) {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let node = tappedNode(of: touches) {
-            nodeDidTap(node)
+        let node = tappedNode(of: touches)
+        let action: Action
+
+        if let node = node {
+            let nodePosition: CGPoint
+            if node.parent == self {
+                nodePosition = convert(node.position, to: self)
+            } else {
+                nodePosition = node.convert(node.position, to: self)    // node.parent == self の状態だと position が倍ずれるため
+            }
+            switch node.name {
+            case "book_shelf":
+                action = .readDocumentation(position: nodePosition)
+            case "display":
+                action = .enterALifeWorld(position: nodePosition)
+            case "clock":
+                action = .seeClock(position: nodePosition)
+            case "picture":
+                action = .seePicture(position: nodePosition)
+            default:
+                action = .moveToDefaultPosition
+            }
+        } else {
+            action = .moveToDefaultPosition
         }
+        execute(with: action)
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -44,12 +69,12 @@ final class GameScene: SKScene {
 }
 
 extension GameScene {
-    enum Action: String {
-        case readDocumentation = "book_shelf"
-        case enterALifeWorld   = "display"
-        case checkNotification = "notification" // TODO: implement
-        case seeClock          = "clock"
-        case seePicture        = "picture"
+    enum Action {
+        case readDocumentation(position: CGPoint)
+        case enterALifeWorld(position: CGPoint)
+        case seeClock(position: CGPoint)
+        case seePicture(position: CGPoint)
+        case moveToDefaultPosition
     }
 
     private func tappedNode(of touches: Set<UITouch>) -> SKNode? {
@@ -59,18 +84,50 @@ extension GameScene {
         return atPoint(touchLocation)
     }
 
-    private func nodeDidTap(_ node: SKNode) {
-        guard let action = Action.init(rawValue: node.name ?? "") else {
-            return
-        }
-        execute(with: action, node: node)
-    }
+    private func execute(with action: Action) {
+        let nodeActions: [SKAction]
 
-    private func execute(with action: Action, node: SKNode) {
-        let nodePosition = node.convert(node.position, to: self)
-        let cameraPosition = positionInScene(nodePosition)
-        let moveAction = SKAction.move(to: cameraPosition, duration:0.4)
-        cameraNode.run(moveAction) { [weak self] in
+        switch action {
+        case .readDocumentation(let position):
+            nodeActions = [
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: cameraDefaultZoomScale), duration:0.4)
+            ]
+
+        case .enterALifeWorld(let position):
+            let zoomScale: CGFloat = 1.0
+            let duration: TimeInterval = 0.4
+            nodeActions = [
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:duration),
+                SKAction.scale(to: zoomScale, duration: duration)
+            ]
+
+        case .seeClock(let position):
+            let zoomScale: CGFloat = 0.5
+            let duration: TimeInterval = 0.4
+            nodeActions = [
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:duration),
+                SKAction.scale(to: zoomScale, duration: duration)
+            ]
+
+        case .seePicture(let position):
+            let zoomScale: CGFloat = 1.0
+            let duration: TimeInterval = 0.4
+            nodeActions = [
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:duration),
+                SKAction.scale(to: zoomScale, duration: duration)
+            ]
+
+        case .moveToDefaultPosition:
+            let duration: TimeInterval = 0.4
+            nodeActions = [
+                SKAction.move(to: cameraPositionInScene(.zero, zoomScale: cameraDefaultZoomScale), duration:duration),
+                SKAction.scale(to: cameraDefaultZoomScale, duration: duration)
+            ]
+        }
+
+        let actionGroup = SKAction.group(nodeActions)
+
+        cameraNode.run(actionGroup) { [weak self] in
             guard let self = self else {
                 return
             }
@@ -83,9 +140,15 @@ extension GameScene {
         }
     }
 
-    private func positionInScene(_ position: CGPoint) -> CGPoint {
-        let cameraMaxPosition = CGPoint.init(x: (1334.0 / 4.0) * 1.0, y: 0.0) // TODO: 動的に求める
-        let cameraMinPosition = CGPoint.init(x: (1334.0 / 4.0) * -1.0, y: 0.0)
+    private func cameraPositionInScene(_ position: CGPoint, zoomScale: CGFloat) -> CGPoint {
+        let sceneBounds = CGSize.init(width: 1334.0, height: 375.0)         // TODO: 動的に求める
+        let cameraBounds = CGSize.init(width: (sceneBounds.width / 4.0) * zoomScale, height: (sceneBounds.height / 2.0) * zoomScale)  // TODO: 動的に求める
+
+        let maxX = (sceneBounds.width / 2.0) - (cameraBounds.width / 2.0)
+        let maxY = (sceneBounds.height / 2.0) - (cameraBounds.height / 2.0)
+
+        let cameraMaxPosition = CGPoint.init(x: maxX, y: maxY)
+        let cameraMinPosition = CGPoint.zero - cameraMaxPosition
 
         let positionInScene = max(cameraMinPosition, min(cameraMaxPosition, position))
 
@@ -93,25 +156,21 @@ extension GameScene {
     }
 }
 
-extension CGSize {
-    var coordinateRepresentation: CGPoint {
-        return CGPoint.init(x: width, y: height)
+extension CGPoint {
+    static func +(lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        return CGPoint.init(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
     }
 
-    static func +(lhs: CGSize, rhs: CGSize) -> CGSize {
-        return CGSize.init(width: lhs.width + rhs.width, height: lhs.height + rhs.height)
+    static func -(lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        return CGPoint.init(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
 
-    static func -(lhs: CGSize, rhs: CGSize) -> CGSize {
-        return CGSize.init(width: lhs.width - rhs.width, height: lhs.height - rhs.height)
+    static func *(size: CGPoint, constant: CGFloat) -> CGPoint {
+        return CGPoint.init(x: size.x * constant, y: size.y * constant)
     }
 
-    static func *(size: CGSize, constant: CGFloat) -> CGSize {
-        return CGSize.init(width: size.width * constant, height: size.height * constant)
-    }
-
-    static func /(size: CGSize, constant: CGFloat) -> CGSize {
-        return CGSize.init(width: size.width / constant, height: size.height / constant)
+    static func /(size: CGPoint, constant: CGFloat) -> CGPoint {
+        return CGPoint.init(x: size.x / constant, y: size.y / constant)
     }
 }
 
