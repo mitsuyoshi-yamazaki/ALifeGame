@@ -54,10 +54,20 @@
                                 </wkWebViewConfiguration>
                             </wkWebView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J29-lX-9Hy">
-                                <rect key="frame" x="16" y="816" width="31" height="30"/>
-                                <state key="normal" title="戻る">
-                                    <color key="titleColor" red="0.36862745098039218" green="0.36862745098039218" blue="0.36862745098039218" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <rect key="frame" x="16" y="814" width="120" height="32"/>
+                                <color key="backgroundColor" red="0.36862745098039218" green="0.36862745098039218" blue="0.36862745098039218" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="Ix7-zE-SPL"/>
+                                    <constraint firstAttribute="height" constant="32" id="rlG-Lc-gjO"/>
+                                </constraints>
+                                <state key="normal" title="研究室に戻る">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="16"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="dismiss:" destination="frR-LW-jHF" eventType="touchUpInside" id="Qfw-pi-XbR"/>
                                 </connections>
@@ -71,7 +81,6 @@
                             <constraint firstItem="yoo-z7-h1q" firstAttribute="bottom" secondItem="J29-lX-9Hy" secondAttribute="bottom" constant="16" id="Ufe-kO-X67"/>
                             <constraint firstItem="ZqN-th-EZo" firstAttribute="leading" secondItem="8Ty-in-rtA" secondAttribute="leading" id="XFS-QZ-Uo7"/>
                             <constraint firstItem="ZqN-th-EZo" firstAttribute="centerY" secondItem="8Ty-in-rtA" secondAttribute="centerY" id="it0-hF-t3D"/>
-                            <constraint firstItem="yoo-z7-h1q" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="J29-lX-9Hy" secondAttribute="trailing" symbolic="YES" id="v46-ky-n7O"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="yoo-z7-h1q"/>
                     </view>

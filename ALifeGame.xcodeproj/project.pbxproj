@@ -16,6 +16,7 @@
 		2C70F0E223895E55004DFE8E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C70F0E123895E55004DFE8E /* Assets.xcassets */; };
 		2C70F0E523895E55004DFE8E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C70F0E323895E55004DFE8E /* LaunchScreen.storyboard */; };
 		2CED9887238A9E76001849E0 /* ALifeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CED9886238A9E76001849E0 /* ALifeViewController.swift */; };
+		2CED9889238AA264001849E0 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CED9888238AA264001849E0 /* UIViewExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		2C70F0E423895E55004DFE8E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2C70F0E623895E55004DFE8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2CED9886238A9E76001849E0 /* ALifeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALifeViewController.swift; sourceTree = "<group>"; };
+		2CED9888238AA264001849E0 /* UIViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +72,7 @@
 				2C70F0DA23895E53004DFE8E /* GameScene.swift */,
 				2C70F0DC23895E53004DFE8E /* GameViewController.swift */,
 				2CED9886238A9E76001849E0 /* ALifeViewController.swift */,
+				2CED9888238AA264001849E0 /* UIViewExtension.swift */,
 				2C70F0DE23895E53004DFE8E /* Main.storyboard */,
 				2C70F0E123895E55004DFE8E /* Assets.xcassets */,
 				2C70F0E323895E55004DFE8E /* LaunchScreen.storyboard */,
@@ -151,6 +154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CED9889238AA264001849E0 /* UIViewExtension.swift in Sources */,
 				2CED9887238A9E76001849E0 /* ALifeViewController.swift in Sources */,
 				2C70F0DB23895E53004DFE8E /* GameScene.swift in Sources */,
 				2C70F0DD23895E53004DFE8E /* GameViewController.swift in Sources */,
