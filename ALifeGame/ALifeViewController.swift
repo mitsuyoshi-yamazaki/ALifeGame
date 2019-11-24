@@ -16,7 +16,7 @@ final class ALifeViewController: UIViewController {
 }
 
 extension UIViewController {
-  @IBAction func dismiss(_ sender: AnyObject) {
-    dismiss(animated: true, completion: nil)
-  }
+    @IBAction func dismiss(_ sender: AnyObject) {
+        dismiss(animated: true, completion: nil)
+    }
 }

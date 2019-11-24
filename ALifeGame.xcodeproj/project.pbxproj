@@ -49,9 +49,9 @@
 				2C70F0D323895E53004DFE8E /* ALifeGame */,
 				2C70F0D223895E53004DFE8E /* Products */,
 			);
-			indentWidth = 2;
+			indentWidth = 4;
 			sourceTree = "<group>";
-			tabWidth = 2;
+			tabWidth = 4;
 		};
 		2C70F0D223895E53004DFE8E /* Products */ = {
 			isa = PBXGroup;
