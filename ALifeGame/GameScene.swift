@@ -11,8 +11,8 @@ import GameplayKit
 
 final class GameScene: SKScene {
   
-  private var cameraNode: SKNode! {
-    return childNode(withName: "//camera")
+  private var cameraNode: SKCameraNode! {
+    return childNode(withName: "//camera") as? SKCameraNode
   }
 
   override func didMove(to view: SKView) {
@@ -62,7 +62,49 @@ extension GameScene {
   }
 
   private func execute(with action: Action, node: SKNode) {
-    let action = SKAction.move(to: node.position, duration:0.4)
+    let nodePosition = node.convert(node.position, to: self)
+    let cameraPosition = positionInScene(nodePosition)
+    let action = SKAction.move(to: cameraPosition, duration:0.4)
     cameraNode.run(action)
   }
+
+  private func positionInScene(_ position: CGPoint) -> CGPoint {
+    let cameraMaxPosition = CGPoint.init(x: (1334.0 / 4.0) * 1.0, y: 0.0) // TODO: 動的に求める
+    let cameraMinPosition = CGPoint.init(x: (1334.0 / 4.0) * -1.0, y: 0.0)
+
+    let positionInScene = max(cameraMinPosition, min(cameraMaxPosition, position))
+    print("pos: \(position), \(positionInScene)")
+
+    return positionInScene
+  }
+}
+
+extension CGSize {
+  var coordinateRepresentation: CGPoint {
+    return CGPoint.init(x: width, y: height)
+  }
+
+  static func +(lhs: CGSize, rhs: CGSize) -> CGSize {
+    return CGSize.init(width: lhs.width + rhs.width, height: lhs.height + rhs.height)
+  }
+
+  static func -(lhs: CGSize, rhs: CGSize) -> CGSize {
+    return CGSize.init(width: lhs.width - rhs.width, height: lhs.height - rhs.height)
+  }
+
+  static func *(size: CGSize, constant: CGFloat) -> CGSize {
+    return CGSize.init(width: size.width * constant, height: size.height * constant)
+  }
+
+  static func /(size: CGSize, constant: CGFloat) -> CGSize {
+    return CGSize.init(width: size.width / constant, height: size.height / constant)
+  }
+}
+
+func max(_ lhs: CGPoint, _ rhs: CGPoint) -> CGPoint {
+  return CGPoint.init(x: max(lhs.x, rhs.x), y: max(lhs.y, rhs.y))
+}
+
+func min(_ lhs: CGPoint, _ rhs: CGPoint) -> CGPoint {
+  return CGPoint.init(x: min(lhs.x, rhs.x), y: min(lhs.y, rhs.y))
 }
