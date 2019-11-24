@@ -28,17 +28,7 @@ final class GameScene: SKScene {
         return childNode(withName: "//version_label") as? SKLabelNode
     }
 
-    var focusPoint = FocusPoint.none {
-        didSet {
-            guard isSceneLoaded else {
-                return
-            }
-            guard focusPoint != oldValue else {
-                return
-            }
-            changeFocusPoint(from: oldValue)
-        }
-    }
+    var focusPoint = FocusPoint.none
     private let cameraDefaultZoomScale: CGFloat = 8.0
     private var isSceneLoaded = false
 
@@ -50,7 +40,23 @@ final class GameScene: SKScene {
         versionLabelNode.alpha = 0.0
         versionLabelNode.text = "ver \(Bundle.main.versionFullString)"
 
-        changeFocusPoint(from: .none)
+        if UserDefaults.standard.anyOnboardingFinished {
+            changeFocusPoint(to: .none, forceReload: true)
+        } else {
+            isUserInteractionEnabled = false
+
+            changeFocusPoint(to: .none, forceReload: true) { [weak self] in
+                let nodeName = "paper_01"
+                guard let self = self, let onboardingNode = self.childNode(withName: nodeName) else {
+                    return
+                }
+                let nodePosition = self.convert(onboardingNode.position, to: self)
+                self.changeFocusPoint(to: .paper(position: nodePosition, nodeName: nodeName), delay: 0.6) { [weak self] in
+                    self?.isUserInteractionEnabled = true
+                    UserDefaults.standard.anyOnboardingFinished = true
+                }
+            }
+        }
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -85,12 +91,11 @@ final class GameScene: SKScene {
             }
         }
 
-        self.focusPoint = focusPoint ?? .none
+        changeFocusPoint(to: focusPoint ?? .none)
     }
 
     override func update(_ currentTime: TimeInterval) {
         let dateFormatter = DateFormatter.init()
-//        dateFormatter.dateFormat = "HH:mm:ss"
         dateFormatter.dateStyle = .none
         dateFormatter.timeStyle = .medium
         clockLabelNode.text = dateFormatter.string(from: Date())
@@ -115,10 +120,20 @@ extension GameScene {
         return nodes(at: touchLocation)
     }
 
-    private func changeFocusPoint(from previousPoint: FocusPoint) {
+    private func changeFocusPoint(to focusPoint: FocusPoint, forceReload: Bool = false, delay: TimeInterval? = nil, completion block: (() -> Void)? = nil) {
+        let previousFocusPoint = self.focusPoint
+        guard isSceneLoaded else {
+            return
+        }
+        let isNeeded = forceReload || (focusPoint != previousFocusPoint) || (block != nil)
+        guard isNeeded else {
+            return
+        }
+        self.focusPoint = focusPoint
+
         let defaultDuration: TimeInterval = 0.4
 
-        switch previousPoint {
+        switch previousFocusPoint {
         case .clock:
             if case .clock = focusPoint {   // guard で書けないか？
                 break
@@ -136,16 +151,19 @@ extension GameScene {
             let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: cameraDefaultZoomScale), duration:defaultDuration)
             ]
-            cameraNode.run(SKAction.group(cameraActions))
+            cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
 
         case .display(let position):
-            let zoomScale: CGFloat = 1.0
+            let zoomScale: CGFloat = cameraDefaultZoomScale / 6.0
             let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
                 SKAction.scale(to: zoomScale, duration: defaultDuration)
             ]
 
             cameraNode.run(SKAction.group(cameraActions)) { [weak self] in
+                defer {
+                    block?()
+                }
                 guard let self = self else {
                     return
                 }
@@ -164,7 +182,7 @@ extension GameScene {
                 SKAction.move(to: cameraPositionInScene(leftAlignedPosition, zoomScale: zoomScale), duration:defaultDuration),
                 SKAction.scale(to: zoomScale, duration: defaultDuration),
             ]
-            cameraNode.run(SKAction.group(cameraActions))
+            cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
 
             let fadeInAction = SKAction.fadeIn(withDuration: defaultDuration)
             clockLabelNode.run(fadeInAction)
@@ -176,7 +194,7 @@ extension GameScene {
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
                 SKAction.scale(to: zoomScale, duration: defaultDuration)
             ]
-            cameraNode.run(SKAction.group(cameraActions))
+            cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
 
         case .corkboard(let position):
             let zoomScale = cameraDefaultZoomScale / 2.2
@@ -184,15 +202,19 @@ extension GameScene {
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
                 SKAction.scale(to: zoomScale, duration: defaultDuration)
             ]
-            cameraNode.run(SKAction.group(cameraActions))
+            cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
 
         case .paper(let position, let nodeName):
             let zoomScale = cameraDefaultZoomScale / 5.0
-            let cameraActions: [SKAction] = [
+            let actionGroup = SKAction.group([
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
                 SKAction.scale(to: zoomScale, duration: defaultDuration)
-            ]
-            cameraNode.run(SKAction.group(cameraActions))
+            ])
+            let actionSequence = SKAction.sequence([
+                SKAction.wait(forDuration: delay ?? 0.0),
+                actionGroup
+            ])
+            cameraNode.run(actionSequence, completion: block ?? {})
 
             brindPaperToFront(nodeName: nodeName)
 
@@ -201,7 +223,7 @@ extension GameScene {
                 SKAction.move(to: cameraPositionInScene(.zero, zoomScale: cameraDefaultZoomScale), duration:defaultDuration),
                 SKAction.scale(to: cameraDefaultZoomScale, duration: defaultDuration)
             ]
-            cameraNode.run(SKAction.group(cameraActions))
+            cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
         }
     }
 

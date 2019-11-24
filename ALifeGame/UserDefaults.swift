@@ -59,7 +59,8 @@ extension UserDefaults {
 }
 
 enum Onboarding: String {
-    case corkboard
+    // コルクボードにオンボーディング文言が貼り付けてある
+    case ver0_0_1
 
-    static var current = Onboarding.corkboard
+    static var current = Onboarding.ver0_0_1
 }
