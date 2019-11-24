@@ -39,7 +39,7 @@ final class GameScene: SKScene {
             changeFocusPoint(from: oldValue)
         }
     }
-    private let cameraDefaultZoomScale: CGFloat = 2.0
+    private let cameraDefaultZoomScale: CGFloat = 8.0
     private var isSceneLoaded = false
 
     override func sceneDidLoad() {
@@ -49,6 +49,8 @@ final class GameScene: SKScene {
         clockLabelNode.alpha = 0.0
         versionLabelNode.alpha = 0.0
         versionLabelNode.text = "ver \(Bundle.main.versionFullString)"
+
+        changeFocusPoint(from: .none)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -70,6 +72,10 @@ final class GameScene: SKScene {
                 focusPoint = .clock(position: nodePosition)
             case "picture":
                 focusPoint = .picture(position: nodePosition)
+            case "corkboard":
+                focusPoint = .corkboard(position: nodePosition)
+            case "paper_01", "paper_02":
+                focusPoint = .paper(position: nodePosition)
             default:
                 focusPoint = .none
             }
@@ -78,18 +84,11 @@ final class GameScene: SKScene {
         }
     }
 
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-    }
-
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-    }
-
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-    }
-
     override func update(_ currentTime: TimeInterval) {
         let dateFormatter = DateFormatter.init()
-        dateFormatter.dateFormat = "HH:mm:ss"
+//        dateFormatter.dateFormat = "HH:mm:ss"
+        dateFormatter.dateStyle = .none
+        dateFormatter.timeStyle = .medium
         clockLabelNode.text = dateFormatter.string(from: Date())
     }
 }
@@ -100,6 +99,8 @@ extension GameScene {
         case display(position: CGPoint)
         case clock(position: CGPoint)
         case picture(position: CGPoint)
+        case corkboard(position: CGPoint)
+        case paper(position: CGPoint)
         case none
     }
 
@@ -153,8 +154,8 @@ extension GameScene {
             }
 
         case .clock(let position):
-            let leftAlignedPosition = position + CGPoint.init(x: 60.0, y: 0.0)
-            let zoomScale: CGFloat = 0.5
+            let leftAlignedPosition = position + CGPoint.init(x: 240.0, y: 0.0)
+            let zoomScale = cameraDefaultZoomScale / 4.0
             let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(leftAlignedPosition, zoomScale: zoomScale), duration:defaultDuration),
                 SKAction.scale(to: zoomScale, duration: defaultDuration),
@@ -166,7 +167,23 @@ extension GameScene {
             versionLabelNode.run(fadeInAction)
 
         case .picture(let position):
-            let zoomScale: CGFloat = 1.0
+            let zoomScale = cameraDefaultZoomScale / 2.0
+            let cameraActions: [SKAction] = [
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
+                SKAction.scale(to: zoomScale, duration: defaultDuration)
+            ]
+            cameraNode.run(SKAction.group(cameraActions))
+
+        case .corkboard(let position):
+            let zoomScale = cameraDefaultZoomScale / 2.0
+            let cameraActions: [SKAction] = [
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
+                SKAction.scale(to: zoomScale, duration: defaultDuration)
+            ]
+            cameraNode.run(SKAction.group(cameraActions))
+
+        case .paper(let position):
+            let zoomScale = cameraDefaultZoomScale / 6.0
             let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
                 SKAction.scale(to: zoomScale, duration: defaultDuration)
@@ -183,8 +200,9 @@ extension GameScene {
     }
 
     private func cameraPositionInScene(_ position: CGPoint, zoomScale: CGFloat) -> CGPoint {
-        let sceneBounds = CGSize.init(width: 1334.0, height: 375.0)         // TODO: 動的に求める
-        let cameraBounds = CGSize.init(width: (sceneBounds.width / 4.0) * zoomScale, height: (sceneBounds.height / 2.0) * zoomScale)  // TODO: 動的に求める
+        let calibratedZoomScale = cameraDefaultZoomScale / zoomScale
+        let sceneBounds = CGSize.init(width: 5336.0, height: 1500.0)         // TODO: 動的に求める
+        let cameraBounds = CGSize.init(width: (sceneBounds.width / 2.0) / calibratedZoomScale, height: sceneBounds.height / calibratedZoomScale)  // TODO: 動的に求める
 
         let maxX = (sceneBounds.width / 2.0) - (cameraBounds.width / 2.0)
         let maxY = (sceneBounds.height / 2.0) - (cameraBounds.height / 2.0)
@@ -224,6 +242,20 @@ extension GameScene.FocusPoint: Equatable { // associated value が Equatable �
 
         case .picture(let lPosition):
             if case .picture(let rPosition) = rhs {
+                return lPosition == rPosition
+            } else {
+                return false
+            }
+
+        case .corkboard(let lPosition):
+            if case .corkboard(let rPosition) = rhs {
+                return lPosition == rPosition
+            } else {
+                return false
+            }
+
+        case .paper(let lPosition):
+            if case .paper(let rPosition) = rhs {
                 return lPosition == rPosition
             } else {
                 return false

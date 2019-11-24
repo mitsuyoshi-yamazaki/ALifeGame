@@ -10,22 +10,41 @@ import Foundation
 
 extension UserDefaults {
     enum Key: String {
-        case onboardingFinishDate
+        case onboardingFinishVersion
     }
 
-//    func onboardingFinishDate(with version: String) -> Date? {
-//        get {
-//
-//            return
-//        }
-//        set {
-//
-//        }
-//    }
+    var onboardingFinished: Bool {
+        get {
+            let list = onboardingFinishList()
+            return list[Onboarding.current.rawValue] != nil
+        }
+        set {
+            var list = onboardingFinishList()
+            list[Onboarding.current.rawValue] = Date()
+
+            let key = fullKey(.onboardingFinishVersion)
+            UserDefaults.standard.set(list, forKey: key)
+        }
+    }
+
+    func onboardingFinishList() -> [String: Date] { // [Onboarding.rawValue: Date]
+        let key = fullKey(.onboardingFinishVersion)
+        guard let list = UserDefaults.standard.object(forKey: key) as? [String: Date] else {
+            return [:]
+        }
+        return list
+    }
 }
 
 extension UserDefaults {
-//    private func fullKey(_ key: Key) -> String {
-//        
-//    }
+    private func fullKey(_ key: Key) -> String {
+        let bundleID = Bundle.main.bundleIdentifier ?? ""
+        return "\(bundleID).\(key.rawValue)"
+    }
+}
+
+enum Onboarding: String {
+    case corkboard
+
+    static var current = Onboarding.corkboard
 }
