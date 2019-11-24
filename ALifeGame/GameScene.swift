@@ -48,6 +48,7 @@ final class GameScene: SKScene {
 
         clockLabelNode.alpha = 0.0
         versionLabelNode.alpha = 0.0
+        versionLabelNode.text = Bundle.main.versionFullString
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -87,7 +88,10 @@ final class GameScene: SKScene {
     }
 
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+        let dateFormatter = DateFormatter.init()
+        dateFormatter.timeStyle = .medium
+        dateFormatter.dateStyle = .none
+        clockLabelNode.text = dateFormatter.string(from: Date())
     }
 }
 
@@ -108,58 +112,62 @@ extension GameScene {
     }
 
     private func changeFocusPoint(from previousPoint: FocusPoint) {
-        let nodeActions: [SKAction]
-
         switch focusPoint {
         case .bookShelf(let position):
-            nodeActions = [
+            let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: cameraDefaultZoomScale), duration:0.4)
             ]
+            cameraNode.run(SKAction.group(cameraActions))
 
         case .display(let position):
             let zoomScale: CGFloat = 1.0
             let duration: TimeInterval = 0.4
-            nodeActions = [
+            let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:duration),
                 SKAction.scale(to: zoomScale, duration: duration)
             ]
+
+            cameraNode.run(SKAction.group(cameraActions)) { [weak self] in
+                guard let self = self else {
+                    return
+                }
+                switch self.focusPoint {
+                case .display:
+                    self.gameSceneDelegate?.gameSceneDidEnterALifeWorld(self)
+                default:
+                    break
+                }
+            }
 
         case .clock(let position):
             let zoomScale: CGFloat = 0.5
             let duration: TimeInterval = 0.4
-            nodeActions = [
+            let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:duration),
-                SKAction.scale(to: zoomScale, duration: duration)
+                SKAction.scale(to: zoomScale, duration: duration),
             ]
+            cameraNode.run(SKAction.group(cameraActions))
+
+            let fadeInAction = SKAction.fadeIn(withDuration: duration)
+            clockLabelNode.run(fadeInAction)
+            versionLabelNode.run(fadeInAction)
 
         case .picture(let position):
             let zoomScale: CGFloat = 1.0
             let duration: TimeInterval = 0.4
-            nodeActions = [
+            let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:duration),
                 SKAction.scale(to: zoomScale, duration: duration)
             ]
+            cameraNode.run(SKAction.group(cameraActions))
 
         case .none:
             let duration: TimeInterval = 0.4
-            nodeActions = [
+            let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(.zero, zoomScale: cameraDefaultZoomScale), duration:duration),
                 SKAction.scale(to: cameraDefaultZoomScale, duration: duration)
             ]
-        }
-
-        let actionGroup = SKAction.group(nodeActions)
-
-        cameraNode.run(actionGroup) { [weak self] in
-            guard let self = self else {
-                return
-            }
-            switch self.focusPoint {
-            case .display:
-                self.gameSceneDelegate?.gameSceneDidEnterALifeWorld(self)
-            default:
-                break
-            }
+            cameraNode.run(SKAction.group(cameraActions))
         }
     }
 
