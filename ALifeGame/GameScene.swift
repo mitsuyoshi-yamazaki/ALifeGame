@@ -54,9 +54,10 @@ final class GameScene: SKScene {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let node = tappedNode(of: touches)
+        let nodes = tappedNodes(of: touches)
+        var focusPoint: FocusPoint?
 
-        if let node = node {
+        for node in nodes {
             let nodePosition: CGPoint
             if node.parent == self {
                 nodePosition = convert(node.position, to: self)
@@ -77,11 +78,14 @@ final class GameScene: SKScene {
             case "paper_01", "paper_02":
                 focusPoint = .paper(position: nodePosition)
             default:
-                focusPoint = .none
+                break
             }
-        } else {
-            focusPoint = .none
+            guard focusPoint == nil else {
+                break
+            }
         }
+
+        self.focusPoint = focusPoint ?? .none
     }
 
     override func update(_ currentTime: TimeInterval) {
@@ -104,11 +108,11 @@ extension GameScene {
         case none
     }
 
-    private func tappedNode(of touches: Set<UITouch>) -> SKNode? {
+    private func tappedNodes(of touches: Set<UITouch>) -> [SKNode] {
         guard let touchLocation = touches.first?.location(in: self) else {
-            return nil
+            return []
         }
-        return atPoint(touchLocation)
+        return nodes(at: touchLocation)
     }
 
     private func changeFocusPoint(from previousPoint: FocusPoint) {
