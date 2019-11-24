@@ -20,14 +20,38 @@ final class GameScene: SKScene {
         return childNode(withName: "//camera") as? SKCameraNode
     }
 
-    private let cameraDefaultZoomScale: CGFloat = 2.0
+    private var clockLabelNode: SKLabelNode! {
+        return childNode(withName: "//clock_label") as? SKLabelNode
+    }
 
-    override func didMove(to view: SKView) {
+    private var versionLabelNode: SKLabelNode! {
+        return childNode(withName: "//version_label") as? SKLabelNode
+    }
+
+    var focusPoint = FocusPoint.none {
+        didSet {
+            guard isSceneLoaded else {
+                return
+            }
+            guard focusPoint != oldValue else {
+                return
+            }
+            changeFocusPoint(from: oldValue)
+        }
+    }
+    private let cameraDefaultZoomScale: CGFloat = 2.0
+    private var isSceneLoaded = false
+
+    override func sceneDidLoad() {
+        super.sceneDidLoad()
+        isSceneLoaded = true
+
+        clockLabelNode.alpha = 0.0
+        versionLabelNode.alpha = 0.0
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let node = tappedNode(of: touches)
-        let action: Action
 
         if let node = node {
             let nodePosition: CGPoint
@@ -38,20 +62,19 @@ final class GameScene: SKScene {
             }
             switch node.name {
             case "book_shelf":
-                action = .readDocumentation(position: nodePosition)
+                focusPoint = .bookShelf(position: nodePosition)
             case "display":
-                action = .enterALifeWorld(position: nodePosition)
+                focusPoint = .display(position: nodePosition)
             case "clock":
-                action = .seeClock(position: nodePosition)
+                focusPoint = .clock(position: nodePosition)
             case "picture":
-                action = .seePicture(position: nodePosition)
+                focusPoint = .picture(position: nodePosition)
             default:
-                action = .moveToDefaultPosition
+                focusPoint = .none
             }
         } else {
-            action = .moveToDefaultPosition
+            focusPoint = .none
         }
-        execute(with: action)
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -69,12 +92,12 @@ final class GameScene: SKScene {
 }
 
 extension GameScene {
-    enum Action {
-        case readDocumentation(position: CGPoint)
-        case enterALifeWorld(position: CGPoint)
-        case seeClock(position: CGPoint)
-        case seePicture(position: CGPoint)
-        case moveToDefaultPosition
+    enum FocusPoint {
+        case bookShelf(position: CGPoint)
+        case display(position: CGPoint)
+        case clock(position: CGPoint)
+        case picture(position: CGPoint)
+        case none
     }
 
     private func tappedNode(of touches: Set<UITouch>) -> SKNode? {
@@ -84,16 +107,16 @@ extension GameScene {
         return atPoint(touchLocation)
     }
 
-    private func execute(with action: Action) {
+    private func changeFocusPoint(from previousPoint: FocusPoint) {
         let nodeActions: [SKAction]
 
-        switch action {
-        case .readDocumentation(let position):
+        switch focusPoint {
+        case .bookShelf(let position):
             nodeActions = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: cameraDefaultZoomScale), duration:0.4)
             ]
 
-        case .enterALifeWorld(let position):
+        case .display(let position):
             let zoomScale: CGFloat = 1.0
             let duration: TimeInterval = 0.4
             nodeActions = [
@@ -101,7 +124,7 @@ extension GameScene {
                 SKAction.scale(to: zoomScale, duration: duration)
             ]
 
-        case .seeClock(let position):
+        case .clock(let position):
             let zoomScale: CGFloat = 0.5
             let duration: TimeInterval = 0.4
             nodeActions = [
@@ -109,7 +132,7 @@ extension GameScene {
                 SKAction.scale(to: zoomScale, duration: duration)
             ]
 
-        case .seePicture(let position):
+        case .picture(let position):
             let zoomScale: CGFloat = 1.0
             let duration: TimeInterval = 0.4
             nodeActions = [
@@ -117,7 +140,7 @@ extension GameScene {
                 SKAction.scale(to: zoomScale, duration: duration)
             ]
 
-        case .moveToDefaultPosition:
+        case .none:
             let duration: TimeInterval = 0.4
             nodeActions = [
                 SKAction.move(to: cameraPositionInScene(.zero, zoomScale: cameraDefaultZoomScale), duration:duration),
@@ -131,8 +154,8 @@ extension GameScene {
             guard let self = self else {
                 return
             }
-            switch action {
-            case .enterALifeWorld:
+            switch self.focusPoint {
+            case .display:
                 self.gameSceneDelegate?.gameSceneDidEnterALifeWorld(self)
             default:
                 break
@@ -153,6 +176,47 @@ extension GameScene {
         let positionInScene = max(cameraMinPosition, min(cameraMaxPosition, position))
 
         return positionInScene
+    }
+}
+
+extension GameScene.FocusPoint: Equatable { // associated value が Equatable の Enum は勝手に Equatable になるのか？
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        switch lhs {
+        case .bookShelf(let lPosition):
+            if case .bookShelf(let rPosition) = rhs {
+                return lPosition == rPosition
+            } else {
+                return false
+            }
+
+        case .display(let lPosition):
+            if case .display(let rPosition) = rhs {
+                return lPosition == rPosition
+            } else {
+                return false
+            }
+
+        case .clock(let lPosition):
+            if case .clock(let rPosition) = rhs {
+                return lPosition == rPosition
+            } else {
+                return false
+            }
+
+        case .picture(let lPosition):
+            if case .picture(let rPosition) = rhs {
+                return lPosition == rPosition
+            } else {
+                return false
+            }
+
+        case .none:
+            if case .none = rhs {
+                return true
+            } else {
+                return false
+            }
+        }
     }
 }
 

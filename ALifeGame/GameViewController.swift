@@ -31,6 +31,12 @@ final class GameViewController: UIViewController {
         
         sceneView.presentScene(gameScene)
     }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        gameScene.focusPoint = .none
+    }
     
     override var shouldAutorotate: Bool {
         return true
