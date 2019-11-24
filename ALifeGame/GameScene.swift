@@ -30,14 +30,13 @@ final class GameScene: SKScene {
 
     var focusPoint = FocusPoint.none
     private let cameraDefaultZoomScale: CGFloat = 8.0
+    private let defaultActionDuration: TimeInterval = 0.4
     private var isSceneLoaded = false
 
     override func sceneDidLoad() {
         super.sceneDidLoad()
         isSceneLoaded = true
 
-        clockLabelNode.alpha = 0.0
-        versionLabelNode.alpha = 0.0
         versionLabelNode.text = "ver \(Bundle.main.versionFullString)"
 
         if UserDefaults.standard.anyOnboardingFinished {
@@ -129,35 +128,21 @@ extension GameScene {
         guard isNeeded else {
             return
         }
+
         self.focusPoint = focusPoint
-
-        let defaultDuration: TimeInterval = 0.4
-
-        switch previousFocusPoint {
-        case .clock:
-            if case .clock = focusPoint {   // guard で書けないか？
-                break
-            }
-            let fadeOutAction = SKAction.fadeOut(withDuration: defaultDuration)
-            clockLabelNode.run(fadeOutAction)
-            versionLabelNode.run(fadeOutAction)
-
-        default:
-            break
-        }
 
         switch focusPoint {
         case .bookShelf(let position):
             let cameraActions: [SKAction] = [
-                SKAction.move(to: cameraPositionInScene(position, zoomScale: cameraDefaultZoomScale), duration:defaultDuration)
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: cameraDefaultZoomScale), duration:defaultActionDuration)
             ]
             cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
 
         case .display(let position):
             let zoomScale: CGFloat = cameraDefaultZoomScale / 6.0
             let cameraActions: [SKAction] = [
-                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
-                SKAction.scale(to: zoomScale, duration: defaultDuration)
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultActionDuration),
+                SKAction.scale(to: zoomScale, duration: defaultActionDuration)
             ]
 
             cameraNode.run(SKAction.group(cameraActions)) { [weak self] in
@@ -179,36 +164,33 @@ extension GameScene {
             let leftAlignedPosition = position + CGPoint.init(x: 240.0, y: 0.0)
             let zoomScale = cameraDefaultZoomScale / 4.0
             let cameraActions: [SKAction] = [
-                SKAction.move(to: cameraPositionInScene(leftAlignedPosition, zoomScale: zoomScale), duration:defaultDuration),
-                SKAction.scale(to: zoomScale, duration: defaultDuration),
+                SKAction.move(to: cameraPositionInScene(leftAlignedPosition, zoomScale: zoomScale), duration:defaultActionDuration),
+                SKAction.scale(to: zoomScale, duration: defaultActionDuration),
             ]
             cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
-
-            let fadeInAction = SKAction.fadeIn(withDuration: defaultDuration)
-            clockLabelNode.run(fadeInAction)
-            versionLabelNode.run(fadeInAction)
 
         case .picture(let position):
             let zoomScale = cameraDefaultZoomScale / 2.0
             let cameraActions: [SKAction] = [
-                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
-                SKAction.scale(to: zoomScale, duration: defaultDuration)
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultActionDuration),
+                SKAction.scale(to: zoomScale, duration: defaultActionDuration)
             ]
             cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
 
         case .corkboard(let position):
+            let leftAlignedPosition = position + CGPoint.init(x: 200.0, y: 0.0)
             let zoomScale = cameraDefaultZoomScale / 2.2
             let cameraActions: [SKAction] = [
-                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
-                SKAction.scale(to: zoomScale, duration: defaultDuration)
+                SKAction.move(to: cameraPositionInScene(leftAlignedPosition, zoomScale: zoomScale), duration:defaultActionDuration),
+                SKAction.scale(to: zoomScale, duration: defaultActionDuration)
             ]
             cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
 
         case .paper(let position, let nodeName):
             let zoomScale = cameraDefaultZoomScale / 5.0
             let actionGroup = SKAction.group([
-                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
-                SKAction.scale(to: zoomScale, duration: defaultDuration)
+                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultActionDuration),
+                SKAction.scale(to: zoomScale, duration: defaultActionDuration)
             ])
             let actionSequence = SKAction.sequence([
                 SKAction.wait(forDuration: delay ?? 0.0),
@@ -220,11 +202,13 @@ extension GameScene {
 
         case .none:
             let cameraActions: [SKAction] = [
-                SKAction.move(to: cameraPositionInScene(.zero, zoomScale: cameraDefaultZoomScale), duration:defaultDuration),
-                SKAction.scale(to: cameraDefaultZoomScale, duration: defaultDuration)
+                SKAction.move(to: cameraPositionInScene(.zero, zoomScale: cameraDefaultZoomScale), duration:defaultActionDuration),
+                SKAction.scale(to: cameraDefaultZoomScale, duration: defaultActionDuration)
             ]
             cameraNode.run(SKAction.group(cameraActions), completion: block ?? {})
         }
+
+        showLabels(focusPoint: focusPoint)
     }
 
     private func cameraPositionInScene(_ position: CGPoint, zoomScale: CGFloat) -> CGPoint {
@@ -261,6 +245,100 @@ extension GameScene {
 
         nodeToBeFront.zPosition = frontZPosition
         nodeToBeBack.zPosition = backZPosition
+    }
+
+    private func showLabels(focusPoint: FocusPoint, animated: Bool = true) {
+        let labelNamesToShow: Set<String>
+        let allLabelNames: Set<String> = [
+            "clock_label",
+            "version_label",
+            "bookshelf_title_label",
+            "bookshelf_description_label",
+            "corkboard_title_label",
+            "corkboard_description_label",
+            "gallery_title_label",
+            "gallery_description_label"
+        ]
+
+        switch focusPoint {
+        case .bookShelf:
+            labelNamesToShow = [
+                "bookshelf_title_label",
+                "bookshelf_description_label"
+            ]
+
+        case .display:
+            labelNamesToShow = []
+
+        case .clock:
+            labelNamesToShow = [
+                "clock_label",
+                "version_label"
+            ]
+
+        case .corkboard:
+            labelNamesToShow = [
+                "corkboard_title_label",
+                "corkboard_description_label"
+            ]
+
+        case .paper:
+            labelNamesToShow = []
+
+        case .picture:
+            labelNamesToShow = [
+                "gallery_title_label",
+                "gallery_description_label"
+            ]
+
+        case .none:
+            labelNamesToShow = []
+        }
+
+        let nodesToShow: [SKNode] = labelNamesToShow
+            .map { [weak self] name in
+                self?.childNode(withName: name)
+            }
+            .compactMap { $0 }
+            .filter {
+                $0.alpha == 0.0
+            }
+
+        let nodesToHide: [SKNode] = allLabelNames
+            .subtracting(labelNamesToShow)
+            .map { [weak self] name in
+                self?.childNode(withName: name)
+            }
+            .compactMap { $0 }
+            .filter {
+                $0.alpha == 1.0
+            }
+
+        if animated {
+            let fadeInAction = SKAction.fadeIn(withDuration: defaultActionDuration)
+            let fadeOutAction = SKAction.fadeOut(withDuration: defaultActionDuration)
+
+            nodesToShow
+                .forEach {
+                    $0.run(fadeInAction)
+                }
+
+            nodesToHide
+                .forEach {
+                    $0.run(fadeOutAction)
+                }
+
+        } else {
+            nodesToShow
+                .forEach {
+                    $0.alpha = 1.0
+                }
+
+            nodesToHide
+                .forEach {
+                    $0.alpha = 0.0
+                }
+        }
     }
 }
 
