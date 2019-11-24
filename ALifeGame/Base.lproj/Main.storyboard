@@ -30,11 +30,42 @@
                     </view>
                     <connections>
                         <outlet property="sceneView" destination="MFV-d1-UpZ" id="tJP-nY-S6m"/>
+                        <segue destination="frR-LW-jHF" kind="presentation" identifier="ShowALifeView" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="beA-xw-pVR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="137.68115942028987" y="138.61607142857142"/>
+        </scene>
+        <!--Life View Controller-->
+        <scene sceneID="Gxo-Nm-BAQ">
+            <objects>
+                <viewController id="frR-LW-jHF" customClass="ALifeViewController" customModule="ALifeGame" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8Ty-in-rtA">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J29-lX-9Hy">
+                                <rect key="frame" x="16" y="816" width="31" height="30"/>
+                                <state key="normal" title="戻る">
+                                    <color key="titleColor" red="0.36862745098039218" green="0.36862745098039218" blue="0.36862745098039218" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="dismiss:" destination="frR-LW-jHF" eventType="touchUpInside" id="Qfw-pi-XbR"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="J29-lX-9Hy" firstAttribute="leading" secondItem="yoo-z7-h1q" secondAttribute="leading" constant="16" id="B6I-aL-9uh"/>
+                            <constraint firstItem="yoo-z7-h1q" firstAttribute="bottom" secondItem="J29-lX-9Hy" secondAttribute="bottom" constant="16" id="Ufe-kO-X67"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="yoo-z7-h1q"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AjL-ew-3XM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1132" y="139"/>
         </scene>
     </scenes>
 </document>

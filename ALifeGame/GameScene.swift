@@ -9,8 +9,13 @@
 import SpriteKit
 import GameplayKit
 
+protocol GameSceneDelegate: class {
+  func gameSceneDidEnterALifeWorld(_ scene: GameScene)
+}
+
 final class GameScene: SKScene {
-  
+  weak var gameSceneDelegate: GameSceneDelegate?
+
   private var cameraNode: SKCameraNode! {
     return childNode(withName: "//camera") as? SKCameraNode
   }
@@ -64,8 +69,18 @@ extension GameScene {
   private func execute(with action: Action, node: SKNode) {
     let nodePosition = node.convert(node.position, to: self)
     let cameraPosition = positionInScene(nodePosition)
-    let action = SKAction.move(to: cameraPosition, duration:0.4)
-    cameraNode.run(action)
+    let moveAction = SKAction.move(to: cameraPosition, duration:0.4)
+    cameraNode.run(moveAction) { [weak self] in
+      guard let self = self else {
+        return
+      }
+      switch action {
+      case .enterALifeWorld:
+        self.gameSceneDelegate?.gameSceneDidEnterALifeWorld(self)
+      default:
+        break
+      }
+    }
   }
 
   private func positionInScene(_ position: CGPoint) -> CGPoint {
@@ -73,7 +88,6 @@ extension GameScene {
     let cameraMinPosition = CGPoint.init(x: (1334.0 / 4.0) * -1.0, y: 0.0)
 
     let positionInScene = max(cameraMinPosition, min(cameraMaxPosition, position))
-    print("pos: \(position), \(positionInScene)")
 
     return positionInScene
   }

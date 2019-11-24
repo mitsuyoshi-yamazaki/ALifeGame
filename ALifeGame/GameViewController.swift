@@ -20,17 +20,16 @@ final class GameViewController: UIViewController {
     }
   }
 
+  private let gameScene: GameScene! = GameScene(fileNamed: "GameScene")
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    if let scene = SKScene(fileNamed: "GameScene") {
-      // Set the scale mode to scale to fit the window
-      scene.scaleMode = .aspectFill
-      scene.size = sceneView.frame.size
+    gameScene.scaleMode = .aspectFill
+    gameScene.size = sceneView.frame.size
+    gameScene.gameSceneDelegate = self
 
-      // Present the scene
-      sceneView.presentScene(scene)
-    }
+    sceneView.presentScene(gameScene)
   }
 
   override var shouldAutorotate: Bool {
@@ -47,5 +46,11 @@ final class GameViewController: UIViewController {
 
   override var prefersStatusBarHidden: Bool {
     return true
+  }
+}
+
+extension GameViewController: GameSceneDelegate {
+  func gameSceneDidEnterALifeWorld(_ scene: GameScene) {
+    performSegue(withIdentifier: "ShowALifeView", sender: self)
   }
 }
