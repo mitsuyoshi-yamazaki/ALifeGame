@@ -48,7 +48,7 @@ final class GameScene: SKScene {
 
         clockLabelNode.alpha = 0.0
         versionLabelNode.alpha = 0.0
-        versionLabelNode.text = Bundle.main.versionFullString
+        versionLabelNode.text = "ver \(Bundle.main.versionFullString)"
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -89,8 +89,7 @@ final class GameScene: SKScene {
 
     override func update(_ currentTime: TimeInterval) {
         let dateFormatter = DateFormatter.init()
-        dateFormatter.timeStyle = .medium
-        dateFormatter.dateStyle = .none
+        dateFormatter.dateFormat = "HH:mm:ss"
         clockLabelNode.text = dateFormatter.string(from: Date())
     }
 }
@@ -140,10 +139,11 @@ extension GameScene {
             }
 
         case .clock(let position):
+            let leftAlignedPosition = position + CGPoint.init(x: 60.0, y: 0.0)
             let zoomScale: CGFloat = 0.5
             let duration: TimeInterval = 0.4
             let cameraActions: [SKAction] = [
-                SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:duration),
+                SKAction.move(to: cameraPositionInScene(leftAlignedPosition, zoomScale: zoomScale), duration:duration),
                 SKAction.scale(to: zoomScale, duration: duration),
             ]
             cameraNode.run(SKAction.group(cameraActions))
