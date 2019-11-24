@@ -22,7 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2C70F0D123895E53004DFE8E /* ALifeGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ALifeGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C70F0D123895E53004DFE8E /* 人工生命Lab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "人工生命Lab.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C70F0D423895E53004DFE8E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2C70F0D623895E53004DFE8E /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
 		2C70F0D823895E53004DFE8E /* Actions.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Actions.sks; sourceTree = "<group>"; };
@@ -62,7 +62,7 @@
 		2C70F0D223895E53004DFE8E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2C70F0D123895E53004DFE8E /* ALifeGame.app */,
+				2C70F0D123895E53004DFE8E /* 人工生命Lab.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -104,7 +104,7 @@
 			);
 			name = ALifeGame;
 			productName = ALifeGame;
-			productReference = 2C70F0D123895E53004DFE8E /* ALifeGame.app */;
+			productReference = 2C70F0D123895E53004DFE8E /* 人工生命Lab.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -319,7 +319,7 @@
 				MARKETING_VERSION = 0.0.1;
 				OTHER_SWIFT_FLAGS = "-Xfrontend -warn-long-expression-type-checking=50 -Xfrontend -warn-long-function-bodies=200";
 				PRODUCT_BUNDLE_IDENTIFIER = mitsuyoshi.ALifeGame;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "人工生命Lab";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -337,7 +337,7 @@
 				);
 				MARKETING_VERSION = 0.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = mitsuyoshi.ALifeGame;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "人工生命Lab";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};

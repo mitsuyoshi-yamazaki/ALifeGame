@@ -76,7 +76,7 @@ final class GameScene: SKScene {
             case "corkboard":
                 focusPoint = .corkboard(position: nodePosition)
             case "paper_01", "paper_02":
-                focusPoint = .paper(position: nodePosition)
+                focusPoint = .paper(position: nodePosition, nodeName: node.name!)
             default:
                 break
             }
@@ -104,7 +104,7 @@ extension GameScene {
         case clock(position: CGPoint)
         case picture(position: CGPoint)
         case corkboard(position: CGPoint)
-        case paper(position: CGPoint)
+        case paper(position: CGPoint, nodeName: String)
         case none
     }
 
@@ -179,20 +179,22 @@ extension GameScene {
             cameraNode.run(SKAction.group(cameraActions))
 
         case .corkboard(let position):
-            let zoomScale = cameraDefaultZoomScale / 2.0
+            let zoomScale = cameraDefaultZoomScale / 2.2
             let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
                 SKAction.scale(to: zoomScale, duration: defaultDuration)
             ]
             cameraNode.run(SKAction.group(cameraActions))
 
-        case .paper(let position):
-            let zoomScale = cameraDefaultZoomScale / 6.0
+        case .paper(let position, let nodeName):
+            let zoomScale = cameraDefaultZoomScale / 5.0
             let cameraActions: [SKAction] = [
                 SKAction.move(to: cameraPositionInScene(position, zoomScale: zoomScale), duration:defaultDuration),
                 SKAction.scale(to: zoomScale, duration: defaultDuration)
             ]
             cameraNode.run(SKAction.group(cameraActions))
+
+            brindPaperToFront(nodeName: nodeName)
 
         case .none:
             let cameraActions: [SKAction] = [
@@ -217,6 +219,26 @@ extension GameScene {
         let positionInScene = max(cameraMinPosition, min(cameraMaxPosition, position))
 
         return positionInScene
+    }
+
+    private func brindPaperToFront(nodeName: String) {
+        var nodeNames: Set<String> = [
+            "paper_01",
+            "paper_02"
+        ]
+        nodeNames.remove(nodeName)
+        guard let otherNodeName = nodeNames.first else {
+            return
+        }
+        guard let nodeToBeFront = childNode(withName: nodeName), let nodeToBeBack = childNode(withName: otherNodeName) else {
+            return
+        }
+
+        let frontZPosition: CGFloat = 20.0
+        let backZPosition: CGFloat = 10.0
+
+        nodeToBeFront.zPosition = frontZPosition
+        nodeToBeBack.zPosition = backZPosition
     }
 }
 
