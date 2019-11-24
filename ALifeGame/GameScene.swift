@@ -28,7 +28,7 @@ final class GameScene: SKScene {
         return childNode(withName: "//version_label") as? SKLabelNode
     }
 
-    var focusPoint = FocusPoint.none
+    private var focusPoint = FocusPoint.none
     private let cameraDefaultZoomScale: CGFloat = 8.0
     private let defaultActionDuration: TimeInterval = 0.4
     private var isSceneLoaded = false
@@ -98,6 +98,10 @@ final class GameScene: SKScene {
         dateFormatter.dateStyle = .none
         dateFormatter.timeStyle = .medium
         clockLabelNode.text = dateFormatter.string(from: Date())
+    }
+
+    func resetFocusing() {
+        changeFocusPoint(to: .none)
     }
 }
 

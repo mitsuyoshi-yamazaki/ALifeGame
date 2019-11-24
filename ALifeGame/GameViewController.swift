@@ -35,7 +35,7 @@ final class GameViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        gameScene.focusPoint = .none
+        gameScene.resetFocusing()
     }
     
     override var shouldAutorotate: Bool {
